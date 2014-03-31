@@ -118,9 +118,9 @@ $( document ).ready( function() {
 
 			subviewCreators : {
 				mySubview : function(placeholder) {
-                    var data = placeholder.attr( "data-other" );
-                    equal( data, 1, "Data attribute present" );
-                    start();
+					var data = placeholder.attr( "data-other" );
+					equal( data, 1, "Data attribute present" );
+					start();
 					return new MySubviewClass();
 				}
 			},
