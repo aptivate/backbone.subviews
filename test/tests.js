@@ -62,7 +62,7 @@ $( document ).ready( function() {
 
 		} );
 
-        expect(2);
+		expect(2);
 		itemViewInstance = new MyItemViewClass();
 
 	} );
@@ -96,7 +96,44 @@ $( document ).ready( function() {
 
 		} );
 
-        expect(1);
+		expect(1);
+		itemViewInstance = new MyItemViewClass();
+
+	} );
+
+	asyncTest( "Subviews in `subviews` hash with custom key",  function() {
+
+		var MyItemViewClass = Backbone.View.extend( {
+
+			el : "#container",
+
+			initialize : function() {
+				Backbone.Subviews.add( this );
+				this.render();
+			},
+
+			getSubviewId: function($placeholder){
+				return $placeholder.data('other');
+			},
+
+			subviewCreators : {
+				mySubview : function() {
+					return new MySubviewClass();
+				}
+			},
+
+			render : function() {
+				this.$el.html( "<div data-other=\"custom\" data-subview=\"mySubview\"></div>" );
+			},
+
+			onSubviewsRendered : function() {
+				ok( this.subviews.custom.cid, "Subview in subview hash with custom key" );
+				start();
+			}
+
+		} );
+
+		expect(1);
 		itemViewInstance = new MyItemViewClass();
 
 	} );
@@ -127,7 +164,7 @@ $( document ).ready( function() {
 
 		} );
 
-        expect(1);
+		expect(1);
 		itemViewInstance = new MyItemViewClass();
 
 	} );
@@ -170,8 +207,7 @@ $( document ).ready( function() {
 		} );
 
 
-        expect(4);
-
+		expect(4);
 		stop();
 
 		itemViewInstance = new MyItemViewClass();
@@ -205,7 +241,7 @@ $( document ).ready( function() {
 
 		} );
 
-        expect(1);
+		expect(1);
 		itemViewInstance = new MyItemViewClass();
 
 		var subViewInstance = itemViewInstance.subviews.mySubview;
@@ -248,7 +284,6 @@ $( document ).ready( function() {
 		} );
 
         expect(1);
-
 		stop();
 
 		itemViewInstance = new MyItemViewClass();
@@ -285,15 +320,56 @@ $( document ).ready( function() {
 
 			subviewCreators : {
 				mySubview : function() {
-
 					return new MySubviewClass();
 				}
 			}
 
 		} );
 
-        expect(2);
+		expect(2);
+		itemViewInstance = new MyItemViewClass();
 
+		itemViewInstance.remove();
+
+		equal( $( "#container" ).children().length, 0, "Subview DOM elements were removed" );
+
+		Backbone.trigger( "message" );
+
+		setTimeout( function() {
+			start();
+			ok( true, "The removed subview listeners were not triggered" );
+		}, 100 );
+
+	} );
+
+	asyncTest( "Calling remove on parent removes subviews with custom keys", function() {
+
+		var MyItemViewClass = Backbone.View.extend( {
+
+			el : "#container",
+
+			initialize : function() {
+				Backbone.Subviews.add( this );
+				this.render();
+			},
+
+			getSubviewId: function($placeholder){
+				return $placeholder.data('other');
+			},
+
+			render : function() {
+				this.$el.html( "<div data-other=\"custom\" data-subview=\"mySubview\"></div>" );
+			},
+
+			subviewCreators : {
+				mySubview : function() {
+					return new MySubviewClass();
+				}
+			}
+
+		} );
+
+		expect(2);
 		itemViewInstance = new MyItemViewClass();
 
 		itemViewInstance.remove();
