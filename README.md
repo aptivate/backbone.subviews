@@ -70,6 +70,9 @@ After the parent view's `render` function is finished, the subviews will automat
 
 When a parent view is re-rendered, its subviews will be re-rendered (i.e. their `render` function will be called). By default the original subview objects will by reused in order to preserve subview state. To force the subview objects to be recreated instead of reused, call `parentView.removeSubviews()` before re-rendering the parent.
 
+If you want to create multiple subview instances using the same subview creator function, you must also define a `getSubviewId` function in the parent view. This will be passed the placeholder element, and should return a unique value to identify each subview instead of the `data-subview` value.
+
+
 A parent view will automatically remove all its subviews when its `remove` method is called.
 
 ## Template Helpers
