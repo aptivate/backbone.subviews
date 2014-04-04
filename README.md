@@ -62,13 +62,16 @@ MyItemViewClass = Backbone.View.extend( {
 
 ## Usage
 
-To insert a subview, put a placeholder element like this `<div data-subview="[subviewName]"></div>` in the appropriate place in the parent view's template. This placeholder `div` will be completely replaced with the subview's DOM element.
+To insert a subview, just put `<div data-subview="[subviewName]"></div>` in the appropriate place in the parent view's template. This placeholder element will be completely replaced with the subview's DOM element.
 
-Then include an entry for the subview in the `subviewCreators` hash. The key of each entry in this hash is a subview's name, and the value is a function that should create and return the new subview object. The subview creator function gets the placeholder element (jQuery wrapped) as a paraemter.
+Then include an entry for the subview in the `subviewCreators` hash. The key of each entry in this hash is a subview's name, and the value is a function that should create and return the new subview object. The placeholder element is passed as an argument to the subview creator function.
 
 After the parent view's `render` function is finished, the subviews will automatically be created and rendered (in the order their placeholder `div`s appear inside the parent view). Once all subviews have been created and rendered, the parent view's `onSubviewsRendered` method is called (if one exists).
 
 When a parent view is re-rendered, its subviews will be re-rendered (i.e. their `render` function will be called). By default the original subview objects will by reused in order to preserve subview state. To force the subview objects to be recreated instead of reused, call `parentView.removeSubviews()` before re-rendering the parent.
+
+If you want to create multiple subview instances using the same subview creator function, you must also define a `getSubviewId` function in the parent view. This will be passed the placeholder element, and should return a unique value to identify each subview instead of the `data-subview` value.
+
 
 A parent view will automatically remove all its subviews when its `remove` method is called.
 

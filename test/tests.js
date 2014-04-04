@@ -101,6 +101,43 @@ $( document ).ready( function() {
 
 	} );
 
+	asyncTest( "Subviews in `subviews` hash with custom key",  function() {
+
+		var MyItemViewClass = Backbone.View.extend( {
+
+			el : "#container",
+
+			initialize : function() {
+				Backbone.Subviews.add( this );
+				this.render();
+			},
+
+			getSubviewId: function($placeholder){
+				return $placeholder.data('other');
+			},
+
+			subviewCreators : {
+				mySubview : function() {
+					return new MySubviewClass();
+				}
+			},
+
+			render : function() {
+				this.$el.html( "<div data-other=\"custom\" data-subview=\"mySubview\"></div>" );
+			},
+
+			onSubviewsRendered : function() {
+				ok( this.subviews.custom.cid, "Subview in subview hash with custom key" );
+				start();
+			}
+
+		} );
+
+		expect(1);
+		itemViewInstance = new MyItemViewClass();
+
+	} );
+
 	asyncTest( "Subview Creators gets jquery wrapped placeholder as parameter",  function() {
 
 		var MyItemViewClass = Backbone.View.extend( {
@@ -118,16 +155,16 @@ $( document ).ready( function() {
 
 			subviewCreators : {
 				mySubview : function(placeholder) {
-                    var data = placeholder.attr( "data-other" );
-                    equal( data, 1, "Data attribute present" );
-                    start();
+					var data = placeholder.attr( "data-other" );
+					equal( data, 1, "Data attribute present" );
+					start();
 					return new MySubviewClass();
 				}
 			},
 
 		} );
 
-        expect(1);
+		expect(1);
 		itemViewInstance = new MyItemViewClass();
 
 	} );
@@ -159,45 +196,6 @@ $( document ).ready( function() {
 		itemViewInstance = new MyItemViewClass();
 
 	});
-
-
-	asyncTest( "Multiple subviews of same type can be hashed separately by id",  function() {
-
-		var MyItemViewClass = Backbone.View.extend( {
-
-			el : "#container",
-
-			initialize : function() {
-				Backbone.Subviews.add( this );
-				this.render();
-			},
-
-			subviewCreators : {
-				mySubview : function() {
-					return new MySubviewClass();
-				}
-			},
-
-			render : function() {
-				this.$el.html( 
-                    "<div data-subview=\"mySubview\" data-subview-id=\"1\"></div>" +
-                    "<div data-subview=\"mySubview\" data-subview-id=\"2\"></div>" 
-                );
-			},
-
-			onSubviewsRendered : function() {
-                console.log(this.subviews);
-				ok( this.subviews[1].cid , "First Subview is in subview hash" );
-				ok( this.subviews[2].cid , "Second Subview is in subview hash" );
-				start();
-			}
-
-		} );
-
-        expect(2);
-		itemViewInstance = new MyItemViewClass();
-
-	} );
 
 
 	module( "Subview rendering",
@@ -239,55 +237,7 @@ $( document ).ready( function() {
 
 
 		expect(4);
-
 		stop();
-
-		itemViewInstance = new MyItemViewClass();
-		itemViewInstance.render();
-
-	} );
-
-	asyncTest( "All Subviews of same time are rendered when parent is rendered", function() {
-
-		var MyItemViewClass = Backbone.View.extend( {
-
-			el : "#container",
-
-			initialize : function() {
-				Backbone.Subviews.add( this );
-				this.render();
-			},
-
-			render : function() {
-				this.$el.html( 
-                    "<div data-subview=\"mySubview\" data-subview-id=\"1\"></div>" +
-                    "<div data-subview=\"mySubview\" data-subview-id=\"2\"></div>"
-                );
-			},
-
-			subviewCreators : {
-				mySubview : function() {
-					return new MySubviewClass();
-				}
-			},
-
-			onSubviewsRendered : function() {
-                var divs;
-				ok( true, "onSubviewsRendered is called" );
-                $divs = $( "#container div" );
-				equal( $divs.length, 2, "Both subviews rendered" );
-                $divs.each(function (index, element) {
-                    equal( $(element).html(), "rendered", "subview is rendered" );
-                });
-				start();
-			}
-
-		} );
-
-
-        expect(8);
-
-	stop();
 
 		itemViewInstance = new MyItemViewClass();
 		itemViewInstance.render();
@@ -364,7 +314,6 @@ $( document ).ready( function() {
 		} );
 
 		expect(1);
-
 		stop();
 
 		itemViewInstance = new MyItemViewClass();
@@ -401,7 +350,6 @@ $( document ).ready( function() {
 
 			subviewCreators : {
 				mySubview : function() {
-
 					return new MySubviewClass();
 				}
 			}
@@ -409,7 +357,6 @@ $( document ).ready( function() {
 		} );
 
 		expect(2);
-
 		itemViewInstance = new MyItemViewClass();
 
 		itemViewInstance.remove();
@@ -425,7 +372,7 @@ $( document ).ready( function() {
 
 	} );
 
-	asyncTest( "Calling remove on parent calls remove on it's subviews", function() {
+	asyncTest( "Calling remove on parent removes subviews with custom keys", function() {
 
 		var MyItemViewClass = Backbone.View.extend( {
 
@@ -436,11 +383,12 @@ $( document ).ready( function() {
 				this.render();
 			},
 
+			getSubviewId: function($placeholder){
+				return $placeholder.data('other');
+			},
+
 			render : function() {
-				this.$el.html( 
-                    "<div data-subview=\"mySubview\" data-subview-id=\"1\"></div>" +
-                    "<div data-subview=\"mySubview\" data-subview-id=\"2\"></div>" 
-                );
+				this.$el.html( "<div data-other=\"custom\" data-subview=\"mySubview\"></div>" );
 			},
 
 			subviewCreators : {
@@ -451,8 +399,7 @@ $( document ).ready( function() {
 
 		} );
 
-        expect(2);
-
+		expect(2);
 		itemViewInstance = new MyItemViewClass();
 
 		itemViewInstance.remove();
